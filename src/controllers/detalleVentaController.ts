@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { query } from "../config/db.js";
+import { query } from "../config/bd.js";
 
 // Obtener todos los detalles de venta
 export async function getDetallesVenta(req: Request, res: Response) {
