@@ -3,12 +3,18 @@ import pkg from "pg";
 
 const { Pool } = pkg;
 
-// Configuración del pool de conexiones usando la URL de tu archivo .env
-export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+export const pool = new Pool(
+  process.env.DATABASE_URL
+    ? { connectionString: process.env.DATABASE_URL }
+    : {
+        host: process.env.PGHOST || "localhost",
+        port: Number(process.env.PGPORT) || 5432,
+        database: process.env.PGDATABASE,
+        user: process.env.PGUSER,
+        password: process.env.PGPASSWORD,
+      }
+);
 
-// Función helper para realizar consultas fácilmente en los controladores
 export const query = (text: string, params?: any[]) => {
   return pool.query(text, params);
 };

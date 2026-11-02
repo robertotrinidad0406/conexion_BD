@@ -4,7 +4,7 @@
   "description": "- Node.js\r - PostgreSQL",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch index.ts",
+    "dev": "tsx watch src/index.ts",
     "start": "node index.js",
     "test": "node --test"
   },
