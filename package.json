@@ -2,9 +2,9 @@
   "name": "api",
   "version": "1.0.0",
   "description": "- Node.js\r - PostgreSQL",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
-    "start": "node index.js",
+    "start": "tsx index.ts",
     "test": "node --test"
   },
   "keywords": [],

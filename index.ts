@@ -1,7 +1,12 @@
 import "dotenv/config";
-import app from "./src/app.js";
-import pool from "./src/db.js";
-
+import { pool } from "./src/config/bd.ts";
+import express from "express";
+import cors from "cors";
+import routersProveedores from "./src/routers/routersProveedor.ts";
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use("/proveedores", routersProveedores);
 const port = Number(process.env.PORT || 3000);
 const server = app.listen(port, () => {
   console.log(`API escuchando en http://localhost:${port}`);
@@ -13,7 +18,6 @@ const shutdown = () => {
       console.error("Error al cerrar el servidor:", error);
       process.exitCode = 1;
     }
-
     pool
       .end()
       .then(() => process.exit())
@@ -24,6 +28,5 @@ const shutdown = () => {
       });
   });
 };
-
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
