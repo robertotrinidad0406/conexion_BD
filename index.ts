@@ -1,6 +1,15 @@
 import "dotenv/config";
-import app from "./src/app.js";
-import pool from "./src/db.js";
+import express from "express";
+import pool from "./src/config/bd.js";
+import detalleVentaRoutes from "./src/routes/detalleVentaRoutes.js";
+
+const app = express();
+
+// Middleware indispensable para que Express entienda JSON en el req.body
+app.use(express.json());
+
+// Registrar las rutas del detalle de venta bajo el prefijo /api
+app.use("/api", detalleVentaRoutes);
 
 const port = Number(process.env.PORT || 3000);
 const server = app.listen(port, () => {
