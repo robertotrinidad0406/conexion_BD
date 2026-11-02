@@ -1,9 +1,7 @@
-import pg from "pg";
-import dotenv from "dotenv";
+import "dotenv/config";
+import pkg from "pg";
 
-dotenv.config();
-
-const { Pool } = pg;
+const { Pool } = pkg;
 
 export const pool = new Pool(
   process.env.DATABASE_URL
@@ -17,6 +15,8 @@ export const pool = new Pool(
       }
 );
 
-export const query = async (text: string, params?: any[]) => {
-  return await pool.query(text, params);
+export const query = (text: string, params?: any[]) => {
+  return pool.query(text, params);
 };
+
+export default pool;
