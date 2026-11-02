@@ -1,6 +1,10 @@
 import "dotenv/config";
 import app from "./src/app.js";
 import pool from "./src/db.js";
+import detalleVentaRoutes from "./src/routes/detalleVentaRoutes.js";
+
+// Registrar las rutas del detalle de venta bajo el prefijo /api
+app.use("/api", detalleVentaRoutes);
 
 const port = Number(process.env.PORT || 3000);
 const server = app.listen(port, () => {
