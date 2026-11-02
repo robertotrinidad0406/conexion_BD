@@ -4,8 +4,9 @@
   "description": "- Node.js\r - PostgreSQL",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "node --test"
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index,js"
   },
   "keywords": [],
   "author": "",
