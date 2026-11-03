@@ -38,5 +38,6 @@
     "moduleDetection": "force",
     "moduleResolution": "nodenext",
     "skipLibCheck": true
-  }
+  },
+  "include": ["src/**/*"]
 }

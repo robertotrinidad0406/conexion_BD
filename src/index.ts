@@ -1,31 +1,28 @@
-import express from "express";
-import type { Request, Response, Application } from "express";
-import { Router } from "express";
-import cors from 'cors';
-import dotenv from 'dotenv';
-import productsRoutes from './routes/productsRoutes.js';
-import categoriesRoutes from './routes/categoriesRoutes.js';
-
-dotenv.config();
+import "dotenv/config";
+import express, { Router } from "express";
+import type { Application, Request, Response } from "express";
+import purchasesRoutes from "./routes/purchasesRoutes.js";
+import purchaseDetailsRoutes from "./routes/purchaseDetailsRoutes.js";
 
 const app: Application = express();
-
-app.use(cors());
+const router = Router();
 
 app.use(express.json());
 
-app.get('/', (req: Request, res: Response) => {
-    res.json({
-        mensaje: "API CON EXPRESS FUNCIONANDO",
-    });
+app.get("/", (req: Request, res: Response) => {
+  res.json({
+    mensaje: "API CON EXPRESS FUNCIONANDO",
+  });
 });
 
-app.use("/categories", categoriesRoutes);
-app.use("/products", productsRoutes);
+// Rutas de compras y detalle_compras (Jorge)
+router.use("/purchases", purchasesRoutes);
+router.use("/purchase_details", purchaseDetailsRoutes);
 
-const PORT = process.env.PORT || 3000;
+app.use(router);
+
+const PORT = Number(process.env.PORT) || 3000;
 
 app.listen(PORT, () => {
-    console.log("Servidor corriendo en http://localhost:3000")
-})
-
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
