@@ -1,2 +1,5 @@
 node_modules
 .env
+feature/Proveedores
+npm-debug.log*
+main

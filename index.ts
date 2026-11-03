@@ -1,4 +1,5 @@
 import "dotenv/config";
+ feature/Proveedores
 import { pool } from "./src/config/bd.ts";
 import express from "express";
 import cors from "cors";
@@ -7,11 +8,20 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/proveedores", routersProveedores);
+
+import express from "express";
+import pool from "./src/config/bd.js";
+import detalleVentaRoutes from "./src/routes/detalleVentaRoutes.js";
+
+const app = express();
+app.use(express.json());
+app.use("/api", detalleVentaRoutes);
+
+ main
 const port = Number(process.env.PORT || 3000);
 const server = app.listen(port, () => {
   console.log(`API escuchando en http://localhost:${port}`);
 });
-
 const shutdown = () => {
   server.close((error) => {
     if (error) {
