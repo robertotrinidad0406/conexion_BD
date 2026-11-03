@@ -1,3 +1,21 @@
+feature/Proveedores
+import pkg from "pg";
+import dotenv from "dotenv";
+dotenv.config();
+const { Pool } = pkg;
+export const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+});
+export const query = async (text: string, params?: any[]) => {
+    const start = Date.now();
+    const res = await pool.query(text, params);
+    const duration = Date.now() - start;
+    console.log(
+        `sql ejecutado: ${text} duracion:${duration} filas:${res.rowCount}`,
+    );
+    return res;
+};
+
 import "dotenv/config";
 import pkg from "pg";
 
@@ -20,3 +38,4 @@ export const query = (text: string, params?: any[]) => {
 };
 
 export default pool;
+ main
