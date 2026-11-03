@@ -1,24 +1,25 @@
+// src/index.ts
 import "dotenv/config";
-console.log("DATABASE_URL:", process.env.DATABASE_URL);   
-import express from "express";
-import pool from "./src/config/bd.js";
-import detalleVentaRoutes from "./src/routes/detalleVentaRoutes.js";
-import dotenv from 'dotenv';
-dotenv.config();
 
+import { pool } from "./src/config/bd.js";
+import express from "express";
+import cors from "cors";
+import routersProveedores from "./src/routers/routersProveedor.ts";
+import detalleVentaRoutes from "./src/routes/detalleVentaRoutes.js";
 import empleadoRoutes from './src/routes/empleado.routes.js';
 import clienteRoutes from './src/routes/cliente.routes.js';
 import ventaRoutes from './src/routes/venta.routes.js';
+
 const app = express();
 
+app.use(cors());
+app.use(express.json());
+
+// Rutas
+app.use("/proveedores", routersProveedores);
 app.use('/api/empleados', empleadoRoutes);
 app.use('/api/clientes', clienteRoutes);
 app.use('/api/ventas', ventaRoutes);
-
-// Middleware indispensable para que Express entienda JSON en el req.body
-app.use(express.json());
-
-// Registrar las rutas del detalle de venta bajo el prefijo /api
 app.use("/api", detalleVentaRoutes);
 
 const port = Number(process.env.PORT || 3000);
@@ -32,7 +33,6 @@ const shutdown = () => {
       console.error("Error al cerrar el servidor:", error);
       process.exitCode = 1;
     }
-
     pool
       .end()
       .then(() => process.exit())
@@ -45,4 +45,4 @@ const shutdown = () => {
 };
 
 process.on("SIGINT", shutdown);
-process.on("SIGTERM", shutdown);
+process.on("SIGTERM", shutdown);   
