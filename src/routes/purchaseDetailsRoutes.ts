@@ -6,13 +6,20 @@ import {
   updatePurchaseDetails,
   deletePurchaseDetails,
 } from "../controllers/purchaseDetailsControllers.js";
+import {
+  validateSchema,
+  createPurchaseDetailSchema,
+  updatePurchaseDetailSchema,
+} from "../schemas/purchaseDetailSchema.js";
 
 const router = Router();
 
 router.get("/", getPurchaseDetails);
 router.get("/:id", getPurchaseDetailsById);
-router.post("/", createPurchaseDetails);
-router.put("/:id", updatePurchaseDetails);
+
+router.post("/", validateSchema(createPurchaseDetailSchema), createPurchaseDetails);
+router.put("/:id", validateSchema(updatePurchaseDetailSchema), updatePurchaseDetails);
+
 router.delete("/:id", deletePurchaseDetails);
 
 export default router;
