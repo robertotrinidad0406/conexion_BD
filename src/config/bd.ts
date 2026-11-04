@@ -16,7 +16,7 @@ export const query = (text: string, params?: any[]) => {
   return pool.query(text, params);
 };
 export default pool;
- main
+ /*main*/
 
 /*resolvi el error de duplicado aunque deje el codigo en comentario por si pasa algo que necesite de el*/
 
