@@ -1,18 +1,18 @@
 import { z } from "zod";
 
 export const createDetalleVentaSchema = z.object({
-  saleId: z.number({
-    invalid_type_error: "el saleId debe ser un número",
-  }).int("el saleId debe ser un número entero"),
-  productId: z.number({
-    invalid_type_error: "el productId debe ser un número",
-  }).int("el productId debe ser un número entero"),
+  saleId: z
+    .number({ message: "el saleId debe ser un número" })
+    .int("el saleId debe ser un número entero"),
+  productId: z
+    .number({ message: "el productId debe ser un número" })
+    .int("el productId debe ser un número entero"),
   quantity: z
-    .number({ invalid_type_error: "la cantidad debe ser un número" })
+    .number({ message: "la cantidad debe ser un número" })
     .int("la cantidad debe ser un número entero")
     .min(1, "la cantidad debe ser al menos 1"),
   unitPrice: z
-    .number({ invalid_type_error: "el precio unitario debe ser un número" })
+    .number({ message: "el precio unitario debe ser un número" })
     .min(0, "el precio no puede ser negativo"),
 });
 
