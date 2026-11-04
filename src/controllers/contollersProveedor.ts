@@ -5,7 +5,7 @@ import {
   eliminarProveedorModel,
   listarProveedoresModel,
   obtenerProveedorModel,
-} from "../models/proveedorModel.ts";
+} from "../models/proveedorModel.js";
 export const crearProveedor = async (req: Request, res: Response) => {
   try {
     const { nombre_empresa, contacto_nombre, telefono, email, direccion } =

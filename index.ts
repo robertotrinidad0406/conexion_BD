@@ -4,7 +4,7 @@ import "dotenv/config";
 import { pool } from "./src/config/bd.js";
 import express from "express";
 import cors from "cors";
-import routersProveedores from "./src/routers/routersProveedor.ts";
+import routersProveedores from "./src/routes/routersProveedor.js";
 import detalleVentaRoutes from "./src/routes/detalleVentaRoutes.js";
 import empleadoRoutes from './src/routes/empleado.routes.js';
 import clienteRoutes from './src/routes/cliente.routes.js';

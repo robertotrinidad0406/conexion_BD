@@ -35,7 +35,7 @@ export const obtenerCategoriaPorId = async (req: Request, res: Response) => {
 export async function crearCategoria(req: Request, res: Response) {
     const { nombre, descripcion } = req.body;
     try {
-        const newCategory = await CategoryModel.insertCategory(nombre, descripcion);
+        const newCategory = await CategoryModel.createCategory(nombre, descripcion);
 
         res.status(201).json({
             mensaje: "categoría creada con éxito",
@@ -51,7 +51,7 @@ export async function crearCategoria(req: Request, res: Response) {
 }
 
 export async function actualizarCategoria(req: Request, res: Response) {
-    const id = req.params.id as string;
+    const id = Number(req.params.id);
     const { nombre, descripcion } = req.body;
     try {
         const updatedCategory = await CategoryModel.updateCategory(id, nombre, descripcion);

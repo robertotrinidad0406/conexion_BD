@@ -5,11 +5,16 @@ import {
     obtenerProveedor,
     actualizarProveedor,
     eliminarProveedor,
-} from "../controller/contollersProveedor.ts";
+} from "../controllers/contollersProveedor.js";
+import { validateSchema } from "../middlewares/validateProveedorSchema.js";
+import {
+    createProveedorSchema,
+    updateProveedorSchema,
+} from "../schemas/proveedorSchema.js";
 const router = Router();
 router.get("/", listarProveedores);
 router.get("/:id", obtenerProveedor);
-router.post("/", crearProveedor);
-router.put("/:id", actualizarProveedor);
+router.post("/", validateSchema(createProveedorSchema), crearProveedor);
+router.put("/:id", validateSchema(updateProveedorSchema), actualizarProveedor);
 router.delete("/:id", eliminarProveedor);
 export default router;

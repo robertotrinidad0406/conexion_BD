@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { ProductModel } from "../models/productsModel.js";
 
+
 export async function listarProductos(req: Request, res: Response) {
     try {
         const products = await ProductModel.getAllProducts();
@@ -33,9 +34,10 @@ export const obtenerProductoPorId = async (req: Request, res: Response) => {
 };
 
 export async function crearProducto(req: Request, res: Response) {
+
     const { nombre, descripcion, precio, stock_actual, id_categoria } = req.body;
     try {
-        const newProduct = await ProductModel.insertProduct(
+        const newProduct = await ProductModel.createProduct(
             nombre,
             descripcion,
             precio,
@@ -57,7 +59,7 @@ export async function crearProducto(req: Request, res: Response) {
 }
 
 export async function actualizarProducto(req: Request, res: Response) {
-    const id = req.params.id as string;
+    const id = Number(req.params.id);
     const { nombre, descripcion, precio, stock_actual, id_categoria } = req.body;
     try {
         const updatedProduct = await ProductModel.updateProduct(
