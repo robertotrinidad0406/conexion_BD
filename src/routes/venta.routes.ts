@@ -1,14 +1,14 @@
-import { Router } from 'express';
-import * as controller from '../controllers/venta.controller.js';
+import { Router } from "express";
+import { getVentas, getVenta, createVenta, updateVenta, deleteVenta } from "../controllers/venta.controller.js";
+import { validate } from "../middleware/validate.js";
+import { createVentaSchema, updateVentaSchema } from "../schemas/venta.schema.js";
 
 const router = Router();
 
-router.get('/', controller.listar);
-router.get('/:id', controller.obtener);
-router.get('/cliente/:idCliente', controller.porCliente);
-router.get('/empleado/:idEmpleado', controller.porEmpleado);
-router.post('/', controller.crear);
-router.put('/:id', controller.actualizar);
-router.delete('/:id', controller.eliminar);
+router.get("/", getVentas);
+router.get("/:id", getVenta);
+router.post("/", validate(createVentaSchema), createVenta);
+router.put("/:id", validate(updateVentaSchema), updateVenta);
+router.delete("/:id", deleteVenta);
 
-export default router;   
+export default router;
