@@ -23,11 +23,21 @@ export const PurchaseModel = {
   },
 
 // Actualizar una compra
-  update: async (id: number | string, id_proveedor: number, fecha_compra: any, total_compra: number) => {
-    const { rows } = await query(
-      "UPDATE compra SET id_proveedor = $1, fecha_compra = $2, total_compra = $3 WHERE id = $4 RETURNING *",
-      [id_proveedor, fecha_compra, total_compra, id]
-    );
+  update: async (id: number | string, id_proveedor?: number, fecha_compra?: any, total_compra?: number) => {
+    const text = `
+      UPDATE compra 
+      SET id_proveedor = COALESCE($1, id_proveedor), 
+          fecha_compra = COALESCE($2, fecha_compra), 
+          total_compra = COALESCE($3, total_compra) 
+      WHERE id = $4 
+      RETURNING *;
+    `;
+    const { rows } = await query(text, [
+      id_proveedor || null,
+      fecha_compra || null,
+      total_compra !== undefined ? total_compra : null,
+      id,
+    ]);
     return rows[0] || null;
   },
 
