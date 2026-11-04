@@ -3,6 +3,9 @@ import express, { Router } from "express";
 import type { Application, Request, Response } from "express";
 import purchasesRoutes from "./routes/purchasesRoutes.js";
 import purchaseDetailsRoutes from "./routes/purchaseDetailsRoutes.js";
+import productsRoutes from './routes/productsRoutes.js';
+import categoriesRoutes from './routes/categoriesRoutes.js';
+import proveedoresRoutes from "./routes/routersProveedor.js";
 
 const app: Application = express();
 const router = Router();
@@ -18,6 +21,9 @@ app.get("/", (req: Request, res: Response) => {
 // Rutas de compras y detalle_compras (Jorge)
 router.use("/purchases", purchasesRoutes);
 router.use("/purchase_details", purchaseDetailsRoutes);
+router.use("/categories", categoriesRoutes);
+router.use("/products", productsRoutes);
+router.use("/proveedores", proveedoresRoutes);
 
 app.use(router);
 

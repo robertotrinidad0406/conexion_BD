@@ -6,6 +6,8 @@ import {
     actualizarCategoria,
     eliminarCategoriaPermanente
 } from '../controllers/categoriesControllers.js';
+import { validateSchema } from '../middlewares/validateSchema.js';
+import { createCategorySchema, updateCategorySchema } from '../schemas/categoriesSchema.js';
 
 const router: Router = Router();
 
@@ -16,13 +18,12 @@ router.get('/', listarCategorias);
 router.get('/:id', obtenerCategoriaPorId);
 
 // POST /api/categories - Crear categoría
-router.post('/', crearCategoria);
+router.post('/', validateSchema(createCategorySchema), crearCategoria);
 
 // PUT /api/categories/:id - Actualizar categoría
-router.put('/:id', actualizarCategoria);
+router.put('/:id', validateSchema(updateCategorySchema), actualizarCategoria);
 
 // DELETE /api/categories/:id - Eliminar categoría
 router.delete('/:id', eliminarCategoriaPermanente);
 
 export default router;
-

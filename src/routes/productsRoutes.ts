@@ -6,6 +6,8 @@ import {
     actualizarProducto,
     eliminarProductoPermanente
 } from '../controllers/productsControllers.js';
+import { validateSchema } from '../middlewares/validateSchema.js';
+import { createProductSchema, updateProductSchema } from '../schemas/productsSchema.js';
 
 const router: Router = Router();
 
@@ -16,10 +18,10 @@ router.get('/', listarProductos);
 router.get('/:id', obtenerProductoPorId);
 
 // POST /api/products - Crear producto
-router.post('/', crearProducto);
+router.post('/', validateSchema(createProductSchema), crearProducto);
 
 // PUT /api/products/:id - Actualizar producto
-router.put('/:id', actualizarProducto);
+router.put('/:id', validateSchema(updateProductSchema), actualizarProducto);
 
 // DELETE /api/products/:id - Eliminar producto
 router.delete('/:id', eliminarProductoPermanente);
