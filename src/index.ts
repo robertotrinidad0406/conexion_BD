@@ -2,7 +2,10 @@ import "dotenv/config";
 import express, { Router } from "express";
 import type { Application, Request, Response } from "express";
 import purchasesRoutes from "./routes/purchasesRoutes.js";
-import detalleVentaRoutes from "./routes/detalleVentaRoutes.js"; // Asegúrate que el nombre de tu archivo de rutas sea este
+import purchaseDetailsRoutes from "./routes/purchaseDetailsRoutes.js";
+import productsRoutes from './routes/productsRoutes.js';
+import categoriesRoutes from './routes/categoriesRoutes.js';
+import proveedoresRoutes from "./routes/routersProveedor.js";
 
 const app: Application = express();
 const router = Router();
@@ -17,7 +20,10 @@ app.get("/", (req: Request, res: Response) => {
 
 // Rutas de compras y detalles de venta
 router.use("/purchases", purchasesRoutes);
-router.use("/detalles-venta", detalleVentaRoutes); // Registramos la ruta aquí
+router.use("/purchase_details", purchaseDetailsRoutes);
+router.use("/categories", categoriesRoutes);
+router.use("/products", productsRoutes);
+router.use("/proveedores", proveedoresRoutes);
 
 // MUY IMPORTANTE: Montamos el router general bajo el prefijo "/api"
 app.use("/api", router); 

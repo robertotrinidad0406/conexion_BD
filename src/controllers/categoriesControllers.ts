@@ -1,10 +1,10 @@
 import type { Request, Response } from "express";
-import { query } from "../config/bd.js";
+import { CategoryModel } from "../models/categoriesModel.js";
 
 export async function listarCategorias(req: Request, res: Response) {
     try {
-        const { rows } = await query("SELECT * FROM categoria ORDER BY id ASC");
-        res.status(200).json(rows);
+        const categories = await CategoryModel.getAllCategories();
+        res.status(200).json(categories);
     } catch (error) {
         console.error(error);
         res.status(500).json({
@@ -14,18 +14,16 @@ export async function listarCategorias(req: Request, res: Response) {
 }
 
 export const obtenerCategoriaPorId = async (req: Request, res: Response) => {
-    const id = req.params.id;
+    const id = req.params.id as string;
     try {
-        const text = "SELECT * FROM categoria WHERE id = $1";
-        const values = [id];
-        const { rows } = await query(text, values);
+        const category = await CategoryModel.getCategoryById(id);
 
-        if (rows.length === 0) {
+        if (!category) {
             return res.status(404).json({
                 error: "Categoría no encontrada",
             });
         }
-        res.status(200).json(rows[0]);
+        res.status(200).json(category);
     } catch (error) {
         console.error(error);
         res.status(500).json({
@@ -37,13 +35,11 @@ export const obtenerCategoriaPorId = async (req: Request, res: Response) => {
 export async function crearCategoria(req: Request, res: Response) {
     const { nombre, descripcion } = req.body;
     try {
-        const text = `INSERT INTO categoria(nombre, descripcion) VALUES ($1, $2) RETURNING *`;
-        const values = [nombre, descripcion];
-        const { rows } = await query(text, values);
+        const newCategory = await CategoryModel.createCategory(nombre, descripcion);
 
         res.status(201).json({
             mensaje: "categoría creada con éxito",
-            data: rows[0],
+            data: newCategory,
         });
     } catch (error: any) {
         console.error(error);
@@ -55,14 +51,12 @@ export async function crearCategoria(req: Request, res: Response) {
 }
 
 export async function actualizarCategoria(req: Request, res: Response) {
-    const id = req.params.id;
+    const id = Number(req.params.id);
     const { nombre, descripcion } = req.body;
     try {
-        const text = `UPDATE categoria SET nombre = $1, descripcion = $2 WHERE id = $3 RETURNING *`;
-        const values = [nombre, descripcion, id];
-        const { rows } = await query(text, values);
+        const updatedCategory = await CategoryModel.updateCategory(id, nombre, descripcion);
 
-        if (rows.length === 0) {
+        if (!updatedCategory) {
             return res.status(404).json({
                 error: "Categoría no encontrada",
             });
@@ -70,7 +64,7 @@ export async function actualizarCategoria(req: Request, res: Response) {
 
         res.status(200).json({
             mensaje: "categoría actualizada con éxito",
-            data: rows[0],
+            data: updatedCategory,
         });
     } catch (error: any) {
         console.error(error);
@@ -82,13 +76,11 @@ export async function actualizarCategoria(req: Request, res: Response) {
 }
 
 export async function eliminarCategoriaPermanente(req: Request, res: Response) {
-    const id = req.params.id;
+    const id = req.params.id as string;
     try {
-        const text = `DELETE FROM categoria WHERE id = $1 RETURNING *`;
-        const values = [id];
-        const { rows } = await query(text, values);
+        const deletedCategory = await CategoryModel.deleteCategory(id);
 
-        if (rows.length === 0) {
+        if (!deletedCategory) {
             return res.status(404).json({
                 error: "Categoría no encontrada",
             });
@@ -96,7 +88,7 @@ export async function eliminarCategoriaPermanente(req: Request, res: Response) {
 
         res.status(200).json({
             mensaje: "categoría eliminada con éxito",
-            data: rows[0],
+            data: deletedCategory,
         });
     } catch (error: any) {
         console.error(error);
