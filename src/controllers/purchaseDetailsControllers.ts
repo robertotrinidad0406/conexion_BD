@@ -1,10 +1,13 @@
 import type { Response, Request } from "express";
 import { PurchaseDetailModel } from "../models/purchaseDetailsModels.js";
+import type { GetPurchaseDetailsQueryInput } from "../schemas/purchaseDetailSchema.js";
 
-// Listar todos los detalles de compras
-export async function getPurchaseDetails(req: Request, res: Response) {
+// Listar todos los detalles de compras con filtro
+export async function getPurchaseDetails(
+  req: Request<{}, {}, {}, GetPurchaseDetailsQueryInput>, res: Response) {
   try {
-    const detalles = await PurchaseDetailModel.findAll();
+    const { id_compra, id_producto, limit } = req.query;
+    const detalles = await PurchaseDetailModel.findAll({ id_compra, id_producto, limit });
     res.status(200).json(detalles);
   } catch (error: any) {
     console.error(error);
@@ -21,7 +24,7 @@ export async function getPurchaseDetailsById(req: Request, res: Response) {
       return res.status(404).json({ error: "Detalle de compra no encontrado" });
     }
     res.status(200).json(detalle);
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al obtener el detalle de compra" });
   }
@@ -33,7 +36,7 @@ export async function getPurchaseDetailsByPurchaseId(req: Request, res: Response
   try {
     const detalles = await PurchaseDetailModel.findByPurchaseId(id_compra);
     res.status(200).json(detalles);
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al obtener los detalles de la compra" });
   }
@@ -52,7 +55,7 @@ export async function createPurchaseDetails(req: Request, res: Response) {
       mensaje: "Detalle de compra creado exitosamente",
       detalle: newDetail,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al crear el detalle de compra" });
   }
@@ -72,7 +75,7 @@ export async function updatePurchaseDetails(req: Request, res: Response) {
       mensaje: "Detalle de compra actualizado exitosamente",
       detalle: detalleActualizado,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al actualizar el detalle de compra" });
   }
@@ -90,7 +93,7 @@ export async function deletePurchaseDetails(req: Request, res: Response) {
       mensaje: "Detalle de compra eliminado exitosamente",
       detalleEliminado,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al eliminar el detalle de compra" });
   }

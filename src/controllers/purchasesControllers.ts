@@ -1,10 +1,13 @@
 import type { Response, Request } from "express";
 import { PurchaseModel } from "../models/purchasesModels.js";
+import type { GetPurchasesQueryInput } from "../schemas/purchaseSchema.js";
 
-// Listar todas las compras
-export async function getPurchases(req: Request, res: Response) {
+// Listar todas las compras con filtro
+export async function getPurchases(
+  req: Request<{}, {}, {}, GetPurchasesQueryInput>, res: Response) {
   try {
-    const compras = await PurchaseModel.findAll();
+    const { id_proveedor, limit } = req.query;
+    const compras = await PurchaseModel.findAll({ id_proveedor, limit });
     res.status(200).json(compras);
   } catch (error: any) {
     console.error(error);

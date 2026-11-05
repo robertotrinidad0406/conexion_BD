@@ -7,19 +7,20 @@ import {
   deletePurchase,
 } from "../controllers/purchasesControllers.js";
 
+
+import { validateSchema } from "../middlewares/validateSchemaPurchase.js";
 import {
-  validateSchema,
   createPurchaseSchema,
   updatePurchaseSchema,
+  getPurchasesQuerySchema,
 } from "../schemas/purchaseSchema.js";
 
 const router = Router();
 
-router.get("/", getPurchases);
+router.get("/", validateSchema(getPurchasesQuerySchema, "query"), getPurchases);
 router.get("/:id", getPurchaseById);
-
-router.post("/", validateSchema(createPurchaseSchema), createPurchase);
-router.put("/:id", validateSchema(updatePurchaseSchema), updatePurchase);
+router.post("/", validateSchema(createPurchaseSchema, "body"), createPurchase);
+router.put("/:id", validateSchema(updatePurchaseSchema, "body"), updatePurchase);
 
 router.delete("/:id", deletePurchase);
 
