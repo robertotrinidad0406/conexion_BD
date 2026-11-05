@@ -10,11 +10,17 @@ import { validateSchema } from "../middlewares/validateProveedorSchema.js";
 import {
     createProveedorSchema,
     updateProveedorSchema,
+    proveedorIdSchema,
 } from "../schemas/proveedorSchema.js";
 const router = Router();
 router.get("/", listarProveedores);
-router.get("/:id", obtenerProveedor);
+router.get("/:id", validateSchema(proveedorIdSchema, "params"), obtenerProveedor);
 router.post("/", validateSchema(createProveedorSchema), crearProveedor);
-router.put("/:id", validateSchema(updateProveedorSchema), actualizarProveedor);
-router.delete("/:id", eliminarProveedor);
+router.put(
+    "/:id",
+    validateSchema(proveedorIdSchema, "params"),
+    validateSchema(updateProveedorSchema),
+    actualizarProveedor,
+);
+router.delete("/:id", validateSchema(proveedorIdSchema, "params"), eliminarProveedor);
 export default router;
