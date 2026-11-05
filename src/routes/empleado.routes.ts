@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getEmpleados, getEmpleado, createEmpleado, updateEmpleado, deleteEmpleado } from "../controllers/empleado.controller.js";
-import { validate } from "../middleware/validate.js";
+import { validate } from "../middlewares/validate.CEV.js";
 import { createEmpleadoSchema, updateEmpleadoSchema } from "../schemas/empleado.schema.js";
 
 const router = Router();

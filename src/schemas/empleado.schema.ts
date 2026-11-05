@@ -16,5 +16,13 @@ export const createEmpleadoSchema = z.object({
 
 export const updateEmpleadoSchema = createEmpleadoSchema.partial();
 
+export const empleadoFilterSchema = z.object({
+  search: z.string().trim().max(100).optional(),
+  puesto: z.string().trim().max(100).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
+});
+
 export type CreateEmpleadoInput = z.infer<typeof createEmpleadoSchema>;
 export type UpdateEmpleadoInput = z.infer<typeof updateEmpleadoSchema>;
+export type EmpleadoFilter = z.infer<typeof empleadoFilterSchema>;

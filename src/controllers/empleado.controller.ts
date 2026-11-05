@@ -1,65 +1,70 @@
-import { Request, Response } from 'express';
-import pool from '../config/bd.js';
+import type { Request, Response } from "express";
+import { EmpleadoModel } from "../models/empleado";
+import { empleadoFilterSchema } from "../schemas/empleado.schema.js";
 
-export async function listar(req: Request, res: Response) {
+/*#swagger.tags = ['Employees']
+  #swagger.summary = 'Listar empleados (filtros: ?search=&puesto=&page=&limit=)' */
+export const getEmpleados = async (req: Request, res: Response) => {
   try {
-    const { rows } = await pool.query('SELECT * FROM empleado ORDER BY id');
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: 'Error interno' });
-  }
-}
-
-export async function obtener(req: Request, res: Response) {
-  try {
-    const { rows } = await pool.query('SELECT * FROM empleado WHERE id = $1', [req.params.id]);
-    if (!rows[0]) return res.status(404).json({ error: 'Empleado no encontrado' });
-    res.json(rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: 'Error interno' });
-  }
-}
-
-export async function crear(req: Request, res: Response) {
-  try {
-    const { nombre, apellido, telefono, email } = req.body;
-    if (!nombre || !apellido) {
-      return res.status(400).json({ error: 'nombre y apellido son obligatorios' });
+    const filters = empleadoFilterSchema.parse(req.query);
+    const result = await EmpleadoModel.findAll(filters);
+    res.json(result);
+  } catch (error: any) {
+    if (error.name === "ZodError") {
+      return res.status(400).json({ error: "Filtros inválidos", details: error.errors.map((e: any) => e.message) });
     }
-    const { rows } = await pool.query(
-      `INSERT INTO empleado (nombre, apellido, telefono, email)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [nombre, apellido, telefono || null, email || null]
-    );
-    res.status(201).json(rows[0]);
-  } catch (err: any) {
-    if (err.code === '23505') return res.status(409).json({ error: 'Email ya registrado' });
-    res.status(500).json({ error: 'Error interno' });
+    res.status(500).json({ error: "Error interno del servidor" });
   }
-}
+};
 
-export async function actualizar(req: Request, res: Response) {
+/*#swagger.tags = ['Employees']
+  #swagger.summary = 'Obtener un empleado por ID' */
+export const getEmpleado = async (req: Request, res: Response) => {
   try {
-    const { nombre, apellido, telefono, email } = req.body;
-    const { rows } = await pool.query(
-      `UPDATE empleado SET nombre = $1, apellido = $2, telefono = $3, email = $4
-       WHERE id = $5 RETURNING *`,
-      [nombre, apellido, telefono || null, email || null, req.params.id]
-    );
-    if (!rows[0]) return res.status(404).json({ error: 'Empleado no encontrado' });
-    res.json(rows[0]);
-  } catch (err: any) {
-    if (err.code === '23505') return res.status(409).json({ error: 'Email ya registrado' });
-    res.status(500).json({ error: 'Error interno' });
+    const id = req.params.id as string;
+    const empleado = await EmpleadoModel.findById(id);
+    if (!empleado) return res.status(404).json({ error: "Empleado no encontrado" });
+    res.json(empleado);
+  } catch (error) {
+    res.status(500).json({ error: "Error interno del servidor" });
   }
-}
+};
 
-export async function eliminar(req: Request, res: Response) {
+/*#swagger.tags = ['Employees']
+  #swagger.summary = 'Crear un nuevo empleado' */
+export const createEmpleado = async (req: Request, res: Response) => {
   try {
-    const { rowCount } = await pool.query('DELETE FROM empleado WHERE id = $1', [req.params.id]);
-    if (rowCount === 0) return res.status(404).json({ error: 'Empleado no encontrado' });
-    res.status(204).send();
-  } catch (err) {
-    res.status(500).json({ error: 'Error interno' });
+    const { nombre, correo, puesto, salario } = req.body;
+    const empleado = await EmpleadoModel.create(nombre, correo, puesto, salario);
+    res.status(201).json(empleado);
+  } catch (error) {
+    res.status(500).json({ error: "Error interno del servidor" });
   }
-}   
+};
+
+/*#swagger.tags = ['Employees']
+  #swagger.summary = 'Actualizar un empleado' */
+export const updateEmpleado = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const { nombre, correo, puesto, salario } = req.body;
+    const empleado = await EmpleadoModel.update(id, nombre, correo, puesto, salario);
+    if (!empleado) return res.status(404).json({ error: "Empleado no encontrado" });
+    res.json(empleado);
+  } catch (error) {
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+/*#swagger.tags = ['Employees']
+  #swagger.summary = 'Eliminar un empleado' */
+export const deleteEmpleado = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    const empleado = await EmpleadoModel.delete(id);
+    if (!empleado) return res.status(404).json({ error: "Empleado no encontrado" });
+    res.json(empleado);
+  } catch (error) {
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};   
