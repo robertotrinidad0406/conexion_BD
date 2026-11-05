@@ -13,31 +13,22 @@ export const createPurchaseSchema = z.object({
     .nonnegative("el total de la compra no puede ser negativo"),
 });
 
-// Para el PUT: hace todos los campos opcionales
 export const updatePurchaseSchema = createPurchaseSchema.partial();
 
-// Extrae el tipo TypeScript desde el schema
+export const getPurchasesQuerySchema = z.object({
+  id_proveedor: z
+    .string()
+    .regex(/^\d+$/, "el id_proveedor debe ser un número")
+    .transform(Number)
+    .optional(),
+  limit: z
+    .string()
+    .regex(/^\d+$/, "el límite debe ser un número")
+    .transform(Number)
+    .optional(),
+});
+export type GetPurchasesQueryInput = z.infer<typeof getPurchasesQuerySchema>;
 export type CreatePurchaseInput = z.infer<typeof createPurchaseSchema>;
 
 
-//MIDDLEWARE DE VALIDACIÓN 
-export function validateSchema(schema: ZodObject) {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      req.body = await schema.parseAsync(req.body);
-      next();
-    } catch (error) {
-      if (error instanceof ZodError) {
-        // z.flattenError te da una estructura limpia { formErrors, fieldErrors }
-        const flattened = z.flattenError(error);
-        res.status(400).json({
-          status: "error",
-          message: "Error de validación en los datos enviados",
-          errors: flattened.fieldErrors,
-        });
-        return;
-      }
-      next(error);
-    }
-  };
-}
+//MIDDLEWARE DE VALIDACIÓN (lo puse en su lugar xd)

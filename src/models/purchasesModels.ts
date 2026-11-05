@@ -1,9 +1,26 @@
 import { query } from "../config/bd.js";
 
 export const PurchaseModel = {
-// Listar todas las compras
-  findAll: async () => {
-    const { rows } = await query("SELECT * FROM compra ORDER BY id ASC");
+// Listar todas las compras y filtro truco rata jjaja
+ findAll: async (filters: {
+    id_proveedor?: number | undefined;
+    limit?: number | undefined;
+  } = {}) => {
+    let sqlBase = "SELECT * FROM compra WHERE 1=1";
+    const values = [];
+    let paramIndex = 1;
+    if (filters.id_proveedor) {
+      sqlBase += ` AND id_proveedor = $${paramIndex}`;
+      values.push(filters.id_proveedor);
+      paramIndex++;
+    }
+    sqlBase += " ORDER BY id ASC";
+    if (filters.limit) {
+      sqlBase += ` LIMIT $${paramIndex}`;
+      values.push(filters.limit);
+      paramIndex++;
+    }
+    const { rows } = await query(sqlBase, values);
     return rows;
   },
 
