@@ -4,7 +4,12 @@ import { DetalleVentaModel } from "../models/detalleVentaModels.js";
 // Obtener todos los detalles de venta
 export async function getDetallesVenta(req: Request, res: Response) {
   try {
-    const rows = await DetalleVentaModel.findAll();
+    // Capturamos el query parameter ?nombre=... de la URL
+    const { nombre } = req.query;
+    
+    // Pasamos el filtro al modelo (puede ser undefined si no se envía)
+    const rows = await DetalleVentaModel.findAll(nombre as string);
+    
     res.json(rows);
   } catch (error: any) {
     console.error(error);
@@ -15,6 +20,9 @@ export async function getDetallesVenta(req: Request, res: Response) {
 // Obtener un detalle de venta por ID
 export async function getDetalleVentaById(req: Request, res: Response) {
   const { id } = req.params;
+  if (typeof id !== "string") {
+    return res.status(400).json({ error: "ID de detalle de venta inválido" });
+  }
   try {
     const row = await DetalleVentaModel.findById(id);
     if (!row) {
@@ -43,6 +51,9 @@ export async function createDetalleVenta(req: Request, res: Response) {
 export async function updateDetalleVenta(req: Request, res: Response) {
   const { id } = req.params;
   const { id_venta, id_producto, cantidad, precio_unitario } = req.body;
+  if (typeof id !== "string") {
+    return res.status(400).json({ error: "ID de detalle de venta inválido" });
+  }
   try {
     const updatedRow = await DetalleVentaModel.update(id, id_venta, id_producto, cantidad, precio_unitario);
     if (!updatedRow) {
@@ -58,6 +69,9 @@ export async function updateDetalleVenta(req: Request, res: Response) {
 // Eliminar un detalle de venta
 export async function deleteDetalleVenta(req: Request, res: Response) {
   const { id } = req.params;
+  if (typeof id !== "string") {
+    return res.status(400).json({ error: "ID de detalle de venta inválido" });
+  }
   try {
     const deletedRow = await DetalleVentaModel.delete(id);
     if (!deletedRow) {

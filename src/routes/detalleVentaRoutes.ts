@@ -15,6 +15,8 @@ import {
 
 const router = Router();
 
+router.get("/", getDetallesVenta);
+
 router.get("/detalle-venta", getDetallesVenta);
 router.get("/detalle-venta/:id", getDetalleVentaById);
 router.post("/detalle-venta", validateSchema(createDetalleVentaSchema), createDetalleVenta);
