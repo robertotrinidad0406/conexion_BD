@@ -15,5 +15,12 @@ export const createClienteSchema = z.object({
 
 export const updateClienteSchema = createClienteSchema.partial();
 
+export const clienteFilterSchema = z.object({
+  search: z.string().trim().max(100).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
+});
+
 export type CreateClienteInput = z.infer<typeof createClienteSchema>;
 export type UpdateClienteInput = z.infer<typeof updateClienteSchema>;
+export type ClienteFilter = z.infer<typeof clienteFilterSchema>;

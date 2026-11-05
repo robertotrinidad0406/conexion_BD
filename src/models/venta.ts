@@ -1,54 +1,82 @@
-// src/models/venta.ts
 import { query } from "../config/bd.js";
+import type { VentaFilter } from "../schemas/venta.schema.js";
 
-export const VentaModel = {
-  // Listar todas las ventas (con nombres de cliente y empleado)
-  findAll: async () => {
+export const SaleModel = {
+  findAll: async (filters: VentaFilter) => {
+    const { search, customers_id, fecha_desde, fecha_hasta, page, limit } = filters;
+    const offset = (page - 1) * limit;
+
+    let where: string[] = [];
+    const params: any[] = [];
+    let paramIndex = 1;
+
+    if (search) {
+      where.push(`(s.id::text ILIKE $${paramIndex} OR c.nombre ILIKE $${paramIndex})`);
+      params.push(`%${search}%`);
+      paramIndex++;
+    }
+    if (customers_id) {
+      where.push(`s.customers_id = $${paramIndex}`);
+      params.push(customers_id);
+      paramIndex++;
+    }
+    if (fecha_desde) {
+      where.push(`s.fecha >= $${paramIndex}`);
+      params.push(fecha_desde);
+      paramIndex++;
+    }
+    if (fecha_hasta) {
+      where.push(`s.fecha <= $${paramIndex}`);
+      params.push(fecha_hasta);
+      paramIndex++;
+    }
+
+    const whereClause = where.length ? `WHERE ${where.join(" AND ")}` : "";
+
     const { rows } = await query(
-      `SELECT v.*, c.nombre AS cliente, e.nombre AS empleado
-       FROM ventas v
-       JOIN clientes c ON v.cliente_id = c.id
-       JOIN empleados e ON v.empleado_id = e.id
-       ORDER BY v.id ASC`
+      `SELECT s.*, c.nombre AS cliente
+       FROM sales s
+       JOIN customers c ON s.customers_id = c.id
+       ${whereClause}
+       ORDER BY s.id ASC
+       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+      [...params, limit, offset]
     );
-    return rows;
+
+    const countResult = await query(
+      `SELECT COUNT(*) FROM sales s JOIN customers c ON s.customers_id = c.id ${whereClause}`,
+      params
+    );
+
+    return { data: rows, total: parseInt(countResult.rows[0].count), page, limit };
   },
 
-  // Buscar venta por ID
   findById: async (id: number | string) => {
     const { rows } = await query(
-      `SELECT v.*, c.nombre AS cliente, e.nombre AS empleado
-       FROM ventas v
-       JOIN clientes c ON v.cliente_id = c.id
-       JOIN empleados e ON v.empleado_id = e.id
-       WHERE v.id = $1`, [id]
+      `SELECT s.*, c.nombre AS cliente FROM sales s JOIN customers c ON s.customers_id = c.id WHERE s.id = $1`,
+      [id]
     );
     return rows[0] || null;
   },
 
-  // Crear una nueva venta
-  create: async (cliente_id: number, empleado_id: number, producto: string, cantidad: number, precio: number, fecha: any) => {
+  create: async (customers_id: number, fecha: any, total: number) => {
     const { rows } = await query(
-      `INSERT INTO ventas (cliente_id, empleado_id, producto, cantidad, precio, fecha)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [cliente_id, empleado_id, producto, cantidad, precio, fecha || new Date()]
+      "INSERT INTO sales (customers_id, fecha, total) VALUES ($1, $2, $3) RETURNING *",
+      [customers_id, fecha || new Date(), total]
     );
     return rows[0];
   },
 
-  // Actualizar una venta
-  update: async (id: number | string, cliente_id: number, empleado_id: number, producto: string, cantidad: number, precio: number, fecha: any) => {
+  update: async (id: number | string, customers_id: number, fecha: any, total: number) => {
     const { rows } = await query(
-      `UPDATE ventas SET cliente_id = $1, empleado_id = $2, producto = $3, cantidad = $4, precio = $5, fecha = $6
-       WHERE id = $7 RETURNING *`,
-      [cliente_id, empleado_id, producto, cantidad, precio, fecha, id]
+      "UPDATE sales SET customers_id = $1, fecha = $2, total = $3 WHERE id = $4 RETURNING *",
+      [customers_id, fecha, total, id]
     );
     return rows[0] || null;
   },
 
-  // Eliminar una venta
   delete: async (id: number | string) => {
-    const { rows } = await query("DELETE FROM ventas WHERE id = $1 RETURNING *", [id]);
+    const { rows } = await query("DELETE FROM sales WHERE id = $1 RETURNING *", [id]);
     return rows[0] || null;
   },
-};   
+};

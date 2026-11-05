@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getClientes, getCliente, createCliente, updateCliente, deleteCliente } from "../controllers/cliente.controller.js";
-import { validate } from "../middleware/validate.js";
+import { validate } from "../middlewares/validate.CEV.js";
 import { createClienteSchema, updateClienteSchema } from "../schemas/cliente.schema.js";
 
 const router = Router();
