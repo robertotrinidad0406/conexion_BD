@@ -1,9 +1,28 @@
 import { query } from "../config/bd.js";
 
 export const DetalleVentaModel = {
-  async findAll() {
-    const { rows } = await query("SELECT * FROM detalle_venta ORDER BY id ASC");
-    return rows;
+  // Modificamos findAll para que acepte un parámetro opcional 'nombre'
+  async findAll(nombre?: string) {
+    if (nombre) {
+      const text = `
+        SELECT dv.*, p.nombre AS producto_nombre, p.descripcion AS producto_descripcion 
+        FROM detalle_venta dv
+        JOIN producto p ON dv.id_producto = p.id
+        WHERE p.nombre ILIKE $1
+        ORDER BY dv.id ASC
+      `;
+      const { rows } = await query(text, [`%${nombre}%`]);
+      return rows;
+    } else {
+      const text = `
+        SELECT dv.*, p.nombre AS producto_nombre, p.descripcion AS producto_descripcion 
+        FROM detalle_venta dv
+        JOIN producto p ON dv.id_producto = p.id
+        ORDER BY dv.id ASC
+      `;
+      const { rows } = await query(text);
+      return rows;
+    }
   },
 
   async findById(id: string | number) {
