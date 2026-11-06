@@ -9,14 +9,13 @@ import {
 import { validateSchema } from '../middlewares/validateSchema.js';
 import {
     createProductSchema,
-    updateProductSchema,
-    getProductsQuerySchema
+    updateProductSchema
 } from '../schemas/productsSchema.js';
 
 const router: Router = Router();
 
 // GET /api/products - Listar todos los productos
-router.get('/', validateSchema(getProductsQuerySchema, "query"), listarProductos);
+router.get('/', listarProductos);
 
 // GET /api/products/:id - Obtener producto por ID
 router.get('/:id', obtenerProductoPorId);

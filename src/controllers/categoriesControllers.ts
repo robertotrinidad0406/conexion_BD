@@ -1,14 +1,22 @@
 import type { Request, Response } from "express";
 import { CategoryModel } from "../models/categoriesModel.js";
-import type { GetCategoriesQueryInput } from "../schemas/categoriesSchema.js";
+import { getCategoriesQuerySchema, type GetCategoriesQueryInput } from "../schemas/categoriesSchema.js";
 
 export async function listarCategorias(
     req: Request<{}, {}, {}, GetCategoriesQueryInput>,
     res: Response
 ) {
     try {
-        const { nombre, limit } = req.query;
-        const categories = await CategoryModel.getAllCategories({ nombre, limit });
+        const result = getCategoriesQuerySchema.safeParse(req.query);
+
+        if (!result.success) {
+            return res.status(400).json({
+                error: "Parámetros de consulta inválidos",
+                detalles: result.error.format(),
+            });
+        }
+        const { nombre, limit, page } = result.data;
+        const categories = await CategoryModel.getAllCategories({ nombre, limit, page });
         res.status(200).json(categories);
     } catch (error: any) {
         console.error(error);

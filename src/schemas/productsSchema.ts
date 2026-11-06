@@ -34,11 +34,16 @@ export const getProductsQuerySchema = z.object({
         .regex(/^\d+(\.\d+)?$/, "el precio debe ser un numero")
         .transform(Number)
         .optional(),
+    page: z
+        .string()
+        .regex(/^\d+$/, "la page debe ser un numero")
+        .transform(Number)
+        .default(1),
     limit: z
         .string()
         .regex(/^\d+$/, "el limite debe ser un numero")
         .transform(Number)
-        .optional(),
+        .default(10),
 });
 
 // extraer el tipo de dato para typescript desde el schema q creamos
