@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// ESQUEMAS DE VALIDACIÓN (ZOD)
+// 1. Esquema para CREAR detalle de compra
 export const createPurchaseDetailSchema = z.object({
   id_compra: z
     .number({ message: "el id_compra es obligatorio y debe ser un número" })
@@ -19,8 +19,10 @@ export const createPurchaseDetailSchema = z.object({
     .nonnegative("el precio unitario no puede ser negativo"),
 });
 
+// 2. Esquema para ACTUALIZAR detalle
 export const updatePurchaseDetailSchema = createPurchaseDetailSchema.partial();
 
+// 3. Esquema para FILTRAR Y PAGINAR detalles (Query Params)
 export const getPurchaseDetailsQuerySchema = z.object({
   id_compra: z
     .string()
@@ -32,12 +34,17 @@ export const getPurchaseDetailsQuerySchema = z.object({
     .regex(/^\d+$/, "el id_producto debe ser un número")
     .transform(Number)
     .optional(),
+  page: z
+    .string()
+    .regex(/^\d+$/, "la page debe ser un número")
+    .transform(Number)
+    .default(1),
   limit: z
     .string()
     .regex(/^\d+$/, "el límite debe ser un número")
     .transform(Number)
-    .optional(),
+    .default(10),
 });
 
-export type GetPurchaseDetailsQueryInput = z.infer<typeof getPurchaseDetailsQuerySchema>;
 export type CreatePurchaseDetailInput = z.infer<typeof createPurchaseDetailSchema>;
+export type GetPurchaseDetailsQueryInput = z.infer<typeof getPurchaseDetailsQuerySchema>;

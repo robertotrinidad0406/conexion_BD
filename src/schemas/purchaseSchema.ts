@@ -1,7 +1,6 @@
-import type { Response, Request, NextFunction } from "express";
-import { z, ZodObject, ZodError } from "zod";
+import { z } from "zod";
 
-// ESQUEMAS DE VALIDACIÓN (ZOD)
+// 1. Esquema para CREAR una compra
 export const createPurchaseSchema = z.object({
   id_proveedor: z
     .number({ message: "el id_proveedor es obligatorio y debe ser un número" })
@@ -13,22 +12,27 @@ export const createPurchaseSchema = z.object({
     .nonnegative("el total de la compra no puede ser negativo"),
 });
 
+// 2. Esquema para ACTUALIZAR una compra
 export const updatePurchaseSchema = createPurchaseSchema.partial();
 
+// 3. Esquema para FILTRAR Y PAGINAR (Query Params) - ESTILO DÍA 5
 export const getPurchasesQuerySchema = z.object({
   id_proveedor: z
     .string()
     .regex(/^\d+$/, "el id_proveedor debe ser un número")
     .transform(Number)
     .optional(),
+  page: z
+    .string()
+    .regex(/^\d+$/, "la page debe ser un número")
+    .transform(Number)
+    .default(1),
   limit: z
     .string()
     .regex(/^\d+$/, "el límite debe ser un número")
     .transform(Number)
-    .optional(),
+    .default(10),
 });
-export type GetPurchasesQueryInput = z.infer<typeof getPurchasesQuerySchema>;
+
 export type CreatePurchaseInput = z.infer<typeof createPurchaseSchema>;
-
-
-//MIDDLEWARE DE VALIDACIÓN (lo puse en su lugar xd)
+export type GetPurchasesQueryInput = z.infer<typeof getPurchasesQuerySchema>;
