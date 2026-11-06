@@ -6,6 +6,7 @@ import {
   listarProveedoresModel,
   obtenerProveedorModel,
 } from "../models/proveedorModel.js";
+import { getProveedoresQuerySchema } from "../schemas/proveedorSchema.js";
 export const crearProveedor = async (req: Request, res: Response) => {
   try {
     const { nombre_empresa, contacto_nombre, telefono, email, direccion } =
@@ -33,9 +34,28 @@ export const crearProveedor = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Error al crear el proveedor" });
   }
 };
-export const listarProveedores = async (_req: Request, res: Response) => {
+export const listarProveedores = async (req: Request, res: Response) => {
+  const parsedQuery = getProveedoresQuerySchema.safeParse(req.query);
+  if (!parsedQuery.success) {
+    return res.status(400).json({
+      status: "error",
+      message: "Error de validación en los parámetros enviados",
+      errors: parsedQuery.error.flatten().fieldErrors,
+    });
+  }
+  const { page, limit, nombre_empresa, email } = parsedQuery.data;
+  if (!Number.isSafeInteger((page - 1) * limit)) {
+    return res.status(400).json({
+      error: "La combinación de page y limit excede el rango permitido",
+    });
+  }
   try {
-    const proveedores = await listarProveedoresModel();
+    const proveedores = await listarProveedoresModel({
+      nombre_empresa,
+      email,
+      page,
+      limit,
+    });
     res.json(proveedores);
   } catch (err) {
     console.error("Error al listar proveedores:", err);

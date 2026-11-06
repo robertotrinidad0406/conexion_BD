@@ -21,6 +21,19 @@ export const proveedorIdSchema = z.object({
         .regex(/^[1-9]\d*$/, "El ID debe ser un entero positivo")
         .refine((id) => Number.isSafeInteger(Number(id)), "El ID está fuera de rango"),
 });
-// extraer el tipo de dato para typescript desde el schema q creamos
+const positiveIntegerQuerySchema = (fieldName: string, defaultValue: number) =>
+    z
+        .string()
+        .regex(/^[1-9]\d*$/, `El parámetro ${fieldName} debe ser un entero positivo`)
+        .transform(Number)
+        .refine(Number.isSafeInteger, `El parámetro ${fieldName} está fuera de rango`)
+        .default(defaultValue);
+export const getProveedoresQuerySchema = z.object({
+    nombre_empresa: z.string().optional(),
+    email: z.string().optional(),
+    page: positiveIntegerQuerySchema("page", 1),
+    limit: positiveIntegerQuerySchema("limit", 10),
+});
 export type CreateProveedorInput = z.infer<typeof createProveedorSchema>;
 export type UpdateProveedorInput = z.infer<typeof updateProveedorSchema>;
+export type GetProveedoresQueryInput = z.infer<typeof getProveedoresQuerySchema>;

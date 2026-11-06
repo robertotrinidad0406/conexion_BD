@@ -15,6 +15,21 @@ export type ProveedorInput = {
   direccion?: string | null;
 };
 export type ProveedorUpdateInput = Partial<ProveedorInput>;
+export type ProveedorListFilters = {
+  nombre_empresa?: string;
+  email?: string;
+  page: number;
+  limit: number;
+};
+export type ProveedorListResult = {
+  data: Proveedor[];
+  pagination: {
+    totalItem: number;
+    itemsPerPage: number;
+    currentPage: number;
+    totalPages: number;
+  };
+};
 export const crearProveedorModel = async (
   proveedor: ProveedorInput,
 ): Promise<Proveedor> => {
@@ -34,9 +49,45 @@ export const crearProveedorModel = async (
   );
   return result.rows[0] as Proveedor;
 };
-export const listarProveedoresModel = async (): Promise<Proveedor[]> => {
-  const result = await query("SELECT * FROM proveedor ORDER BY id");
-  return result.rows as Proveedor[];
+export const listarProveedoresModel = async (
+  filters: ProveedorListFilters,
+): Promise<ProveedorListResult> => {
+  const { nombre_empresa, email, page, limit } = filters;
+  const conditions: string[] = [];
+  const values: string[] = [];
+  if (nombre_empresa) {
+    values.push(`%${nombre_empresa}%`);
+    conditions.push(`nombre_empresa LIKE $${values.length}`);
+  }
+  if (email) {
+    values.push(`%${email}%`);
+    conditions.push(`email LIKE $${values.length}`);
+  }
+  const whereClause = conditions.length > 0
+    ? `WHERE ${conditions.join(" AND ")}`
+    : "";
+  const countResult = await query(
+    `SELECT COUNT(*) FROM proveedor ${whereClause}`,
+    values,
+  );
+  const totalItem = Number(countResult.rows[0].count);
+  const offset = (page - 1) * limit;
+  const dataValues = [...values, limit, offset];
+  const result = await query(
+    `SELECT * FROM proveedor ${whereClause}
+     ORDER BY id ASC
+     LIMIT $${values.length + 1} OFFSET $${values.length + 2}`,
+    dataValues,
+  );
+  return {
+    data: result.rows as Proveedor[],
+    pagination: {
+      totalItem,
+      itemsPerPage: limit,
+      currentPage: page,
+      totalPages: Math.ceil(totalItem / limit),
+    },
+  };
 };
 export const obtenerProveedorModel = async (
   id: string,
