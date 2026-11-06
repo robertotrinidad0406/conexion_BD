@@ -1,14 +1,20 @@
 import type { Request, Response } from "express";
 import { CategoryModel } from "../models/categoriesModel.js";
+import type { GetCategoriesQueryInput } from "../schemas/categoriesSchema.js";
 
-export async function listarCategorias(req: Request, res: Response) {
+export async function listarCategorias(
+    req: Request<{}, {}, {}, GetCategoriesQueryInput>,
+    res: Response
+) {
     try {
-        const categories = await CategoryModel.getAllCategories();
+        const { nombre, limit } = req.query;
+        const categories = await CategoryModel.getAllCategories({ nombre, limit });
         res.status(200).json(categories);
-    } catch (error) {
+    } catch (error: any) {
         console.error(error);
         res.status(500).json({
             error: "Error al obtener las categorías",
+            detalles: error.message,
         });
     }
 }

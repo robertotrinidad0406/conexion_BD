@@ -2,8 +2,29 @@ import { query } from "../config/bd.js";
 
 // Modelo para la tabla de "categoria"
 export const CategoryModel = {
-    async getAllCategories() {
-        const { rows } = await query("SELECT * FROM categoria ORDER BY id ASC");
+    async getAllCategories(filters: {
+        nombre?: string | undefined;
+        limit?: number | undefined;
+    } = {}) {
+        let sqlBase = "SELECT * FROM categoria WHERE 1=1";
+        const values = [];
+        let paramIndex = 1;
+
+        if (filters.nombre) {
+            sqlBase += ` AND nombre LIKE $${paramIndex}`;
+            values.push(`%${filters.nombre}%`);
+            paramIndex++;
+        }
+
+        sqlBase += " ORDER BY id ASC";
+
+        if (filters.limit) {
+            sqlBase += ` LIMIT $${paramIndex}`;
+            values.push(filters.limit);
+            paramIndex++;
+        }
+
+        const { rows } = await query(sqlBase, values);
         return rows;
     },
     async getCategoryById(id: number | string) {

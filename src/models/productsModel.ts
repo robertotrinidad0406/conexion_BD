@@ -2,8 +2,35 @@ import { query } from "../config/bd.js";
 
 // Modelo para la tabla de "producto"
 export const ProductModel = {
-    async getAllProducts() {
-        const { rows } = await query("SELECT * FROM producto ORDER BY id ASC");
+    async getAllProducts(filters: {
+        nombre?: string | undefined;
+        precio?: number | undefined;
+        limit?: number | undefined;
+    } = {}) {
+        let sqlBase = "SELECT * FROM producto WHERE 1=1";
+        const values = [];
+        let paramIndex = 1;
+
+        if (filters.nombre) {
+            sqlBase += ` AND nombre LIKE $${paramIndex}`;
+            values.push(`%${filters.nombre}%`);
+            paramIndex++;
+        }
+        if (filters.precio !== undefined) {
+            sqlBase += ` AND precio <= $${paramIndex}`;
+            values.push(filters.precio);
+            paramIndex++;
+        }
+
+        sqlBase += " ORDER BY id ASC";
+
+        if (filters.limit) {
+            sqlBase += ` LIMIT $${paramIndex}`;
+            values.push(filters.limit);
+            paramIndex++;
+        }
+
+        const { rows } = await query(sqlBase, values);
         return rows;
     },
     async getProductById(id: number | string) {
@@ -62,4 +89,3 @@ export const ProductModel = {
         return rows[0];
     },
 };
-
