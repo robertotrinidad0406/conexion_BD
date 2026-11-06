@@ -5,33 +5,43 @@ export const ProductModel = {
     async getAllProducts(filters: {
         nombre?: string | undefined;
         precio?: number | undefined;
-        limit?: number | undefined;
-    } = {}) {
-        let sqlBase = "SELECT * FROM producto WHERE 1=1";
-        const values = [];
+        page: number;
+        limit: number;
+    }) {
+        const { nombre, precio, page, limit } = filters;
+
+        let sqlBase = "WHERE 1=1";
+        const values: any[] = [];
         let paramIndex = 1;
 
-        if (filters.nombre) {
+        if (nombre) {
             sqlBase += ` AND nombre LIKE $${paramIndex}`;
-            values.push(`%${filters.nombre}%`);
+            values.push(`%${nombre}%`);
             paramIndex++;
         }
-        if (filters.precio !== undefined) {
+        if (precio !== undefined) {
             sqlBase += ` AND precio <= $${paramIndex}`;
-            values.push(filters.precio);
+            values.push(precio);
             paramIndex++;
         }
 
-        sqlBase += " ORDER BY id ASC";
+        const countQuery = `SELECT COUNT(*) FROM producto ${sqlBase}`;
+        const countResult = await query(countQuery, values);
+        const totalItem = parseInt(countResult.rows[0].count, 10);
 
-        if (filters.limit) {
-            sqlBase += ` LIMIT $${paramIndex}`;
-            values.push(filters.limit);
-            paramIndex++;
-        }
-
-        const { rows } = await query(sqlBase, values);
-        return rows;
+        const offset = (page - 1) * limit;
+        let dataQuery = `SELECT * FROM producto ${sqlBase} ORDER BY id ASC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+        const queryValues = [...values, limit, offset];
+        const { rows } = await query(dataQuery, queryValues);
+        return {
+            data: rows,
+            pagination: {
+                totalItem,
+                itemsPerPage: limit,
+                currentPage: page,
+                totalPages: Math.ceil(totalItem / limit),
+            },
+        };
     },
     async getProductById(id: number | string) {
         const { rows } = await query("SELECT * FROM producto WHERE id=$1", [id]);

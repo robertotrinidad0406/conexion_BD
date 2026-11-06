@@ -9,14 +9,13 @@ import {
 import { validateSchema } from '../middlewares/validateSchema.js';
 import {
     createCategorySchema,
-    updateCategorySchema,
-    getCategoriesQuerySchema
+    updateCategorySchema
 } from '../schemas/categoriesSchema.js';
 
 const router: Router = Router();
 
 // GET /api/categories - Listar todas las categorías
-router.get('/', validateSchema(getCategoriesQuerySchema, "query"), listarCategorias);
+router.get('/', listarCategorias);
 
 // GET /api/categories/:id - Obtener categoría por ID
 router.get('/:id', obtenerCategoriaPorId);

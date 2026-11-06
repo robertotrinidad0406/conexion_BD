@@ -1,14 +1,22 @@
 import type { Request, Response } from "express";
 import { ProductModel } from "../models/productsModel.js";
-import type { GetProductsQueryInput } from "../schemas/productsSchema.js";
+import { getProductsQuerySchema, type GetProductsQueryInput } from "../schemas/productsSchema.js";
 
 export async function listarProductos(
     req: Request<{}, {}, {}, GetProductsQueryInput>,
     res: Response
 ) {
     try {
-        const { nombre, precio, limit } = req.query;
-        const products = await ProductModel.getAllProducts({ nombre, precio, limit });
+        const result = getProductsQuerySchema.safeParse(req.query);
+
+        if (!result.success) {
+            return res.status(400).json({
+                error: "Parámetros de consulta inválidos",
+                detalles: result.error.format(),
+            });
+        }
+        const { nombre, precio, limit, page } = result.data;
+        const products = await ProductModel.getAllProducts({ nombre, precio, limit, page });
         res.status(200).json(products);
     } catch (error: any) {
         console.error(error);

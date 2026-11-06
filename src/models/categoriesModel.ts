@@ -4,28 +4,38 @@ import { query } from "../config/bd.js";
 export const CategoryModel = {
     async getAllCategories(filters: {
         nombre?: string | undefined;
-        limit?: number | undefined;
-    } = {}) {
-        let sqlBase = "SELECT * FROM categoria WHERE 1=1";
-        const values = [];
+        page: number;
+        limit: number;
+    }) {
+        const { nombre, page, limit } = filters;
+
+        let sqlBase = "WHERE 1=1";
+        const values: any[] = [];
         let paramIndex = 1;
 
-        if (filters.nombre) {
+        if (nombre) {
             sqlBase += ` AND nombre LIKE $${paramIndex}`;
-            values.push(`%${filters.nombre}%`);
+            values.push(`%${nombre}%`);
             paramIndex++;
         }
 
-        sqlBase += " ORDER BY id ASC";
+        const countQuery = `SELECT COUNT(*) FROM categoria ${sqlBase}`;
+        const countResult = await query(countQuery, values);
+        const totalItem = parseInt(countResult.rows[0].count, 10);
 
-        if (filters.limit) {
-            sqlBase += ` LIMIT $${paramIndex}`;
-            values.push(filters.limit);
-            paramIndex++;
-        }
-
-        const { rows } = await query(sqlBase, values);
-        return rows;
+        const offset = (page - 1) * limit;
+        let dataQuery = `SELECT * FROM categoria ${sqlBase} ORDER BY id ASC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+        const queryValues = [...values, limit, offset];
+        const { rows } = await query(dataQuery, queryValues);
+        return {
+            data: rows,
+            pagination: {
+                totalItem,
+                itemsPerPage: limit,
+                currentPage: page,
+                totalPages: Math.ceil(totalItem / limit),
+            },
+        };
     },
     async getCategoryById(id: number | string) {
         const { rows } = await query("SELECT * FROM categoria WHERE id=$1", [id]);
