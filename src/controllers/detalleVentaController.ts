@@ -9,13 +9,16 @@ export async function getDetallesVenta(req: Request, res: Response) {
     const offset = (page - 1) * limit;
     const { nombre } = req.query;
     
-    // Pasamos limit, offset y nombre al modelo
-    const rows = await DetalleVentaModel.findAll(limit, offset, nombre as string);
-    
+       const rows = await DetalleVentaModel.findAll(limit, offset, nombre as string);
+       
+    const totalRegistros = (await DetalleVentaModel.findAll(undefined, undefined, nombre as string)).length;
+    const totalPaginas = Math.ceil(totalRegistros / limit);
+
     res.json({
       page,
       limit,
-      totalRegistros: rows.length,
+      totalRegistros,
+      totalPaginas,
       data: rows
     });
   } catch (error: any) {
