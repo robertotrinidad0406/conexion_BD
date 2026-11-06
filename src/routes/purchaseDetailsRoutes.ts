@@ -16,7 +16,11 @@ const router = Router();
 
 router.get("/", getPurchaseDetails);
 router.get("/:id", getPurchaseDetailsById);
+
+// POST -> Valida el body
 router.post("/", validateSchema(createPurchaseDetailSchema, "body"), createPurchaseDetails);
+
+// PUT -> Valida el body parcial
 router.put("/:id", validateSchema(updatePurchaseDetailSchema, "body"), updatePurchaseDetails);
 router.delete("/:id", deletePurchaseDetails);
 

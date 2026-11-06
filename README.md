@@ -18,5 +18,6 @@ La API queda disponible en `http://localhost:3000` (o en el puerto indicado en `
 - `GET /`: confirma que la API está funcionando.
 - `GET /health`: comprueba que el servidor responde.
 - `GET /health/db`: ejecuta `SELECT 1` para comprobar la conexión a PostgreSQL.
+- `GET /api/proveedores?page=1&limit=10`: lista proveedores paginados. Los filtros `nombre_empresa` y `email` son opcionales, por ejemplo `GET /api/proveedores?page=2&limit=5&nombre_empresa=tecnologia`.
 
 Las rutas y tablas específicas del ejercicio se pueden agregar cuando esté definido el esquema de la base de datos.

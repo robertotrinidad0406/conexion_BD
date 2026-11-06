@@ -1,15 +1,20 @@
 import type { Request, Response } from "express";
 import { ProductModel } from "../models/productsModel.js";
+import type { GetProductsQueryInput } from "../schemas/productsSchema.js";
 
-
-export async function listarProductos(req: Request, res: Response) {
+export async function listarProductos(
+    req: Request<{}, {}, {}, GetProductsQueryInput>,
+    res: Response
+) {
     try {
-        const products = await ProductModel.getAllProducts();
+        const { nombre, precio, limit } = req.query;
+        const products = await ProductModel.getAllProducts({ nombre, precio, limit });
         res.status(200).json(products);
-    } catch (error) {
+    } catch (error: any) {
         console.error(error);
         res.status(500).json({
             error: "Error al obtener los productos",
+            detalles: error.message,
         });
     }
 }

@@ -11,4 +11,4 @@ router.post("/", validate(createClienteSchema), createCliente);
 router.put("/:id", validate(updateClienteSchema), updateCliente);
 router.delete("/:id", deleteCliente);
 
-export default router;   
+export default router;

@@ -30,7 +30,7 @@ export async function getPurchaseDetails(
   }
 }
 
-// Obtener detalle por ID
+// GET /purchase_details/:id
 export async function getPurchaseDetailsById(req: Request, res: Response) {
   const idBuscado = Number(req.params.id);
   if (!idBuscado || isNaN(idBuscado)) {
@@ -55,7 +55,7 @@ export async function getPurchaseDetailsById(req: Request, res: Response) {
   }
 }
 
-// Obtener detalles de una compra específica
+// GET /purchases/:purchaseId/details (Detalles de una compra específica)
 export async function getPurchaseDetailsByPurchaseId(req: Request, res: Response) {
   const purchaseId = Number(req.params.purchaseId);
   if (!purchaseId || isNaN(purchaseId)) {
@@ -75,7 +75,7 @@ export async function getPurchaseDetailsByPurchaseId(req: Request, res: Response
   }
 }
 
-// Crear detalle de compra
+// POST /purchase_details
 export async function createPurchaseDetails(req: Request, res: Response) {
   const { id_compra, id_producto, cantidad, precio_unitario } = req.body;
   try {
@@ -93,7 +93,7 @@ export async function createPurchaseDetails(req: Request, res: Response) {
   }
 }
 
-// Actualizar detalle de compra
+// PUT /purchase_details/:id
 export async function updatePurchaseDetails(req: Request, res: Response) {
   const { id_compra, id_producto, cantidad, precio_unitario } = req.body;
   const idBuscado = Number(req.params.id);
@@ -123,7 +123,7 @@ export async function updatePurchaseDetails(req: Request, res: Response) {
   }
 }
 
-// Eliminar detalle de compra
+// DELETE /purchase_details/:id
 export async function deletePurchaseDetails(req: Request, res: Response) {
   const idBuscado = Number(req.params.id);
   if (!idBuscado || isNaN(idBuscado)) {

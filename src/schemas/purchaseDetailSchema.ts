@@ -18,8 +18,10 @@ export const createPurchaseDetailSchema = z.object({
     .positive("el precio unitario debe ser mayor a cero"),
 });
 
+// 2. Esquema para ACTUALIZAR detalle
 export const updatePurchaseDetailSchema = createPurchaseDetailSchema.partial();
 
+// 3. Esquema para FILTRAR Y PAGINAR detalles (Query Params)
 export const getPurchaseDetailsQuerySchema = z.object({
   id_compra: z
     .string()

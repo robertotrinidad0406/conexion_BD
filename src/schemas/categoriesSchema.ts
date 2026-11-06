@@ -14,9 +14,18 @@ export const createCategorySchema = z.object({
 
 export const updateCategorySchema = createCategorySchema.partial();
 
+export const getCategoriesQuerySchema = z.object({
+    nombre: z.string().optional(),
+    limit: z
+        .string()
+        .regex(/^\d+$/, "el limite debe ser un numero")
+        .transform(Number)
+        .optional(),
+});
+
 // extraer el tipo de dato para typescript desde el schema q creamos
 export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
-export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
+export type GetCategoriesQueryInput = z.infer<typeof getCategoriesQuerySchema>;
 
 /* 
 CREATE TABLE categoria (

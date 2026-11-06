@@ -7,12 +7,16 @@ import {
     eliminarProductoPermanente
 } from '../controllers/productsControllers.js';
 import { validateSchema } from '../middlewares/validateSchema.js';
-import { createProductSchema, updateProductSchema } from '../schemas/productsSchema.js';
+import {
+    createProductSchema,
+    updateProductSchema,
+    getProductsQuerySchema
+} from '../schemas/productsSchema.js';
 
 const router: Router = Router();
 
 // GET /api/products - Listar todos los productos
-router.get('/', listarProductos);
+router.get('/', validateSchema(getProductsQuerySchema, "query"), listarProductos);
 
 // GET /api/products/:id - Obtener producto por ID
 router.get('/:id', obtenerProductoPorId);
@@ -27,4 +31,3 @@ router.put('/:id', validateSchema(updateProductSchema), actualizarProducto);
 router.delete('/:id', eliminarProductoPermanente);
 
 export default router;
-
