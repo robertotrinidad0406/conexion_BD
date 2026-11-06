@@ -9,17 +9,17 @@ export const createPurchaseSchema = z.object({
   fecha_compra: z.string().optional(),
   total_compra: z
     .number({ message: "el total_compra es obligatorio y debe ser un número" })
-    .nonnegative("el total de la compra no puede ser negativo"),
+    .positive("el total de la compra debe ser mayor a cero"),
 });
 
-// 2. Esquema para ACTUALIZAR una compra
+// 2. Esquema para ACTUALIZAR una compra (con = para ahorrar codigo)
 export const updatePurchaseSchema = createPurchaseSchema.partial();
 
 // 3. Esquema para FILTRAR Y PAGINAR (Query Params)
 export const getPurchasesQuerySchema = z.object({
   id_proveedor: z
-    .string()
-    .regex(/^\d+$/, "el id_proveedor debe ser un número")
+    .string() //llegan como texto a en laurl ejem: ?page=2&limit=5
+    .regex(/^\d+$/, "el id_proveedor debe ser un número") //es texto pero no (solo numeros)
     .transform(Number)
     .optional(),
   page: z
@@ -34,5 +34,6 @@ export const getPurchasesQuerySchema = z.object({
     .default(10),
 });
 
+//se usa para hacer magia convierte mi Esquema en un Type de ts
 export type CreatePurchaseInput = z.infer<typeof createPurchaseSchema>;
 export type GetPurchasesQueryInput = z.infer<typeof getPurchasesQuerySchema>;

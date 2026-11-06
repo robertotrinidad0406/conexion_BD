@@ -3,7 +3,7 @@ import { PurchaseDetailModel } from "../models/purchaseDetailsModels.js";
 import type { GetPurchaseDetailsQueryInput } from "../schemas/purchaseDetailSchema.js";
 import { getPurchaseDetailsQuerySchema } from "../schemas/purchaseDetailSchema.js";
 
-// GET /purchase_details (Con safeParse para paginación y defaults de Zod)
+// Listar todos los detalles de compras
 export async function getPurchaseDetails(
   req: Request<{}, {}, {}, GetPurchaseDetailsQueryInput>,
   res: Response,

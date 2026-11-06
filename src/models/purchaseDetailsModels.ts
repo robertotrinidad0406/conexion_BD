@@ -1,7 +1,7 @@
 import { query } from "../config/bd.js";
 
 export const PurchaseDetailModel = {
-  // Paginación y filtros dinámicos (Estilo Día 5 del profesor)
+  // Listar todos los detalles de compras
   async findAll(filters: {
     id_compra?: number | undefined;
     id_producto?: number | undefined;
@@ -26,15 +26,12 @@ export const PurchaseDetailModel = {
       paramIndex++;
     }
 
-    // 1. Obtener conteo total de registros
     const countQuery = `SELECT COUNT(*) FROM detalle_compra ${sqlBase}`;
     const countResult = await query(countQuery, values);
     const totalItem = parseInt(countResult.rows[0].count, 10);
 
-    // 2. Calcular OFFSET
     const offset = (page - 1) * limit;
 
-    // 3. Obtener registros paginados con LIMIT y OFFSET
     const dataQuery = `
       SELECT * FROM detalle_compra 
       ${sqlBase} 
@@ -44,7 +41,6 @@ export const PurchaseDetailModel = {
     const queryValues = [...values, limit, offset];
     const { rows } = await query(dataQuery, queryValues);
 
-    // 4. Retornar datos + metadata de paginación
     return {
       data: rows,
       pagination: {
