@@ -1,53 +1,81 @@
 import { query } from "../config/bd.js";
 
 export const PurchaseModel = {
-// Listar todas las compras y filtro truco rata jjaja
- findAll: async (filters: {
+  // Paginación y filtros dinámicos (Estilo Día 5 del profesor)
+  async findAll(filters: {
     id_proveedor?: number | undefined;
-    limit?: number | undefined;
-  } = {}) => {
-    let sqlBase = "SELECT * FROM compra WHERE 1=1";
-    const values = [];
+    page: number;
+    limit: number;
+  }) {
+    const { id_proveedor, page, limit } = filters;
+
+    let sqlBase = "WHERE 1=1";
+    const values: any[] = [];
     let paramIndex = 1;
-    if (filters.id_proveedor) {
+
+    // Filtros opcionales
+    if (id_proveedor) {
       sqlBase += ` AND id_proveedor = $${paramIndex}`;
-      values.push(filters.id_proveedor);
+      values.push(id_proveedor);
       paramIndex++;
     }
-    sqlBase += " ORDER BY id ASC";
-    if (filters.limit) {
-      sqlBase += ` LIMIT $${paramIndex}`;
-      values.push(filters.limit);
-      paramIndex++;
-    }
-    const { rows } = await query(sqlBase, values);
-    return rows;
+
+    // 1. Obtener conteo total de registros coincidentes
+    const countQuery = `SELECT COUNT(*) FROM compra ${sqlBase}`;
+    const countResult = await query(countQuery, values);
+    const totalItem = parseInt(countResult.rows[0].count, 10);
+
+    // 2. Calcular OFFSET
+    const offset = (page - 1) * limit;
+
+    // 3. Obtener registros paginados con LIMIT y OFFSET
+    const dataQuery = `
+      SELECT * FROM compra 
+      ${sqlBase} 
+      ORDER BY id ASC 
+      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+    `;
+    const queryValues = [...values, limit, offset];
+    const { rows } = await query(dataQuery, queryValues);
+
+    // 4. Retornar datos + metadata de paginación
+    return {
+      data: rows,
+      pagination: {
+        totalItem,
+        itemsPerPage: limit,
+        currentPage: page,
+        totalPages: Math.ceil(totalItem / limit),
+      },
+    };
   },
 
-// Buscar compra por ID
-  findById: async (id: number | string) => {
+  // Buscar compra por ID
+  async findById(id: number | string) {
     const { rows } = await query("SELECT * FROM compra WHERE id = $1", [id]);
     return rows[0] || null;
   },
 
   // Crear una nueva compra
-  create: async (id_proveedor: number, fecha_compra: any, total_compra: number) => {
-    const { rows } = await query(
-      "INSERT INTO compra (id_proveedor, fecha_compra, total_compra) VALUES ($1, $2, $3) RETURNING *",
-      [id_proveedor, fecha_compra || new Date(), total_compra]
-    );
+  async create(id_proveedor: number, fecha_compra: any, total_compra: number) {
+    const text = `
+      INSERT INTO compra (id_proveedor, fecha_compra, total_compra) 
+      VALUES ($1, COALESCE($2, NOW()), $3) 
+      RETURNING *
+    `;
+    const { rows } = await query(text, [id_proveedor, fecha_compra || null, total_compra]);
     return rows[0];
   },
 
-// Actualizar una compra
-  update: async (id: number | string, id_proveedor?: number, fecha_compra?: any, total_compra?: number) => {
+  // Actualizar una compra
+  async update(id: number | string, id_proveedor?: number, fecha_compra?: any, total_compra?: number) {
     const text = `
-      UPDATE compra 
-      SET id_proveedor = COALESCE($1, id_proveedor), 
-          fecha_compra = COALESCE($2, fecha_compra), 
-          total_compra = COALESCE($3, total_compra) 
-      WHERE id = $4 
-      RETURNING *;
+      UPDATE compra
+      SET id_proveedor = COALESCE($1, id_proveedor),
+          fecha_compra = COALESCE($2, fecha_compra),
+          total_compra = COALESCE($3, total_compra)
+      WHERE id = $4
+      RETURNING *
     `;
     const { rows } = await query(text, [
       id_proveedor || null,
@@ -58,9 +86,10 @@ export const PurchaseModel = {
     return rows[0] || null;
   },
 
-// Eliminar una compra
-  delete: async (id: number | string) => {
-    const { rows } = await query("DELETE FROM compra WHERE id = $1 RETURNING *", [id]);
+  // Eliminar una compra
+  async delete(id: number | string) {
+    const text = "DELETE FROM compra WHERE id = $1 RETURNING *";
+    const { rows } = await query(text, [id]);
     return rows[0] || null;
   },
 };

@@ -1,48 +1,69 @@
 import { query } from "../config/bd.js";
 
 export const PurchaseDetailModel = {
-  // Listar todas las compras y filtro truco rata jjaja
-  findAll: async (filters: {
+  // Paginación y filtros dinámicos (Estilo Día 5 del profesor)
+  async findAll(filters: {
     id_compra?: number | undefined;
     id_producto?: number | undefined;
-    limit?: number | undefined;
-  } = {}) => {
-    let sqlBase = "SELECT * FROM detalle_compra WHERE 1=1";
-    const values = [];
+    page: number;
+    limit: number;
+  }) {
+    const { id_compra, id_producto, page, limit } = filters;
+
+    let sqlBase = "WHERE 1=1";
+    const values: any[] = [];
     let paramIndex = 1;
 
-    if (filters.id_compra) {
+    if (id_compra) {
       sqlBase += ` AND id_compra = $${paramIndex}`;
-      values.push(filters.id_compra);
+      values.push(id_compra);
       paramIndex++;
     }
 
-    if (filters.id_producto) {
+    if (id_producto) {
       sqlBase += ` AND id_producto = $${paramIndex}`;
-      values.push(filters.id_producto);
+      values.push(id_producto);
       paramIndex++;
     }
 
-    sqlBase += " ORDER BY id ASC";
+    // 1. Obtener conteo total de registros
+    const countQuery = `SELECT COUNT(*) FROM detalle_compra ${sqlBase}`;
+    const countResult = await query(countQuery, values);
+    const totalItem = parseInt(countResult.rows[0].count, 10);
 
-    if (filters.limit) {
-      sqlBase += ` LIMIT $${paramIndex}`;
-      values.push(filters.limit);
-      paramIndex++;
-    }
+    // 2. Calcular OFFSET
+    const offset = (page - 1) * limit;
 
-    const { rows } = await query(sqlBase, values);
-    return rows;
+    // 3. Obtener registros paginados con LIMIT y OFFSET
+    const dataQuery = `
+      SELECT * FROM detalle_compra 
+      ${sqlBase} 
+      ORDER BY id ASC 
+      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+    `;
+    const queryValues = [...values, limit, offset];
+    const { rows } = await query(dataQuery, queryValues);
+
+    // 4. Retornar datos + metadata de paginación
+    return {
+      data: rows,
+      pagination: {
+        totalItem,
+        itemsPerPage: limit,
+        currentPage: page,
+        totalPages: Math.ceil(totalItem / limit),
+      },
+    };
   },
 
   // Buscar detalle por ID
-  findById: async (id: number | string) => {
+  async findById(id: number | string) {
     const { rows } = await query("SELECT * FROM detalle_compra WHERE id = $1", [id]);
     return rows[0] || null;
   },
 
   // Buscar todos los detalles de una compra específica
-  findByPurchaseId: async (id_compra: number | string) => {
+  async findByPurchaseId(id_compra: number | string) {
     const { rows } = await query(
       "SELECT * FROM detalle_compra WHERE id_compra = $1 ORDER BY id ASC",
       [id_compra]
@@ -51,24 +72,26 @@ export const PurchaseDetailModel = {
   },
 
   // Crear un detalle de compra
-  create: async (id_compra: number, id_producto: number, cantidad: number, precio_unitario: number) => {
-    const { rows } = await query(
-      "INSERT INTO detalle_compra (id_compra, id_producto, cantidad, precio_unitario) VALUES ($1, $2, $3, $4) RETURNING *",
-      [id_compra, id_producto, cantidad, precio_unitario]
-    );
+  async create(id_compra: number, id_producto: number, cantidad: number, precio_unitario: number) {
+    const text = `
+      INSERT INTO detalle_compra (id_compra, id_producto, cantidad, precio_unitario) 
+      VALUES ($1, $2, $3, $4) 
+      RETURNING *
+    `;
+    const { rows } = await query(text, [id_compra, id_producto, cantidad, precio_unitario]);
     return rows[0];
   },
 
   // Actualizar un detalle
-  update: async (id: number | string, id_compra?: number, id_producto?: number, cantidad?: number, precio_unitario?: number) => {
+  async update(id: number | string, id_compra?: number, id_producto?: number, cantidad?: number, precio_unitario?: number) {
     const text = `
-      UPDATE detalle_compra 
-      SET id_compra = COALESCE($1, id_compra), 
-          id_producto = COALESCE($2, id_producto), 
-          cantidad = COALESCE($3, cantidad), 
-          precio_unitario = COALESCE($4, precio_unitario) 
-      WHERE id = $5 
-      RETURNING *;
+      UPDATE detalle_compra
+      SET id_compra = COALESCE($1, id_compra),
+          id_producto = COALESCE($2, id_producto),
+          cantidad = COALESCE($3, cantidad),
+          precio_unitario = COALESCE($4, precio_unitario)
+      WHERE id = $5
+      RETURNING *
     `;
     const { rows } = await query(text, [
       id_compra || null,
@@ -81,8 +104,9 @@ export const PurchaseDetailModel = {
   },
 
   // Eliminar un detalle
-  delete: async (id: number | string) => {
-    const { rows } = await query("DELETE FROM detalle_compra WHERE id = $1 RETURNING *", [id]);
+  async delete(id: number | string) {
+    const text = "DELETE FROM detalle_compra WHERE id = $1 RETURNING *";
+    const { rows } = await query(text, [id]);
     return rows[0] || null;
   },
 };
