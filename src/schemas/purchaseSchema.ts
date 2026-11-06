@@ -15,7 +15,7 @@ export const createPurchaseSchema = z.object({
 // 2. Esquema para ACTUALIZAR una compra
 export const updatePurchaseSchema = createPurchaseSchema.partial();
 
-// 3. Esquema para FILTRAR Y PAGINAR (Query Params) - ESTILO DÍA 5
+// 3. Esquema para FILTRAR Y PAGINAR (Query Params)
 export const getPurchasesQuerySchema = z.object({
   id_proveedor: z
     .string()
