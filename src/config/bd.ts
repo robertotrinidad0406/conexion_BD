@@ -1,10 +1,17 @@
 import pkg from "pg";
 import dotenv from "dotenv";
 dotenv.config();
+
 const { Pool } = pkg;
+
 export const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT) || 5432,
+    database: process.env.DB_DATABASE,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
 });
+
 export const query = async (text: string, params?: any[]) => {
     const start = Date.now();
     const res = await pool.query(text, params);
@@ -14,27 +21,3 @@ export const query = async (text: string, params?: any[]) => {
     );
     return res;
 };
-
-
-
-/*resolvi el error de duplicado aunque deje el codigo en comentario por si pasa algo que necesite de el*/
-
-
-
-/*import pkg from "pg";
-import dotenv from "dotenv";
-dotenv.config();
-const { Pool } = pkg;
-export const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-});
-export const query = async (text: string, params?: any[]) => {
-    const start = Date.now();
-    const res = await pool.query(text, params);
-    const duration = Date.now() - start;
-    console.log(
-        `sql ejecutado: ${text} duracion:${duration} filas:${res.rowCount}`,
-    );
-    return res;
-};
-*/

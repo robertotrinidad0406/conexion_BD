@@ -1,16 +1,23 @@
 import type { Request, Response } from "express";
 import { DetalleVentaModel } from "../models/detalleVentaModels.js";
 
-// Obtener todos los detalles de venta
+// Obtener todos los detalles de venta con paginación
 export async function getDetallesVenta(req: Request, res: Response) {
   try {
-    // Capturamos el query parameter ?nombre=... de la URL
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const offset = (page - 1) * limit;
     const { nombre } = req.query;
     
-    // Pasamos el filtro al modelo (puede ser undefined si no se envía)
-    const rows = await DetalleVentaModel.findAll(nombre as string);
+    // Pasamos limit, offset y nombre al modelo
+    const rows = await DetalleVentaModel.findAll(limit, offset, nombre as string);
     
-    res.json(rows);
+    res.json({
+      page,
+      limit,
+      totalRegistros: rows.length,
+      data: rows
+    });
   } catch (error: any) {
     console.error(error);
     res.status(500).json({ error: "Error al obtener los detalles de venta", detalles: error.message });
